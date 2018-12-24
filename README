@@ -1,0 +1,7 @@
+This is a written-from-scratch toy implementation of RSA, written in 2014 and
+occasionally tweaked since.
+
+It's obviously useless for any practical application: the point is to be a very
+simple and easy to understand BIGNUM library with an RSA implementation.
+
+Division is implemented as shift-and-subtract, so it's very very slow.
