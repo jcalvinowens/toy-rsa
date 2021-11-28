@@ -8,7 +8,7 @@ debug: CFLAGS += -Og -gdwarf-4 -fno-omit-frame-pointer -fstack-protector-all \
 	-fsanitize=address -fsanitize=undefined
 debug: LDFLAGS := $(LDFLAGS) -lasan -lubsan
 
-obj = bfi.o aes.o rng.o rsa.o main.o
+obj = bfi.o rng.o rsa.o main.o
 binary = toy-rsa
 
 all: $(obj) $(binary)

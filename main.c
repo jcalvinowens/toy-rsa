@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "include/common.h"
-#include "include/aes.h"
 #include "include/rsa.h"
 #include "include/rng.h"
 
@@ -21,7 +20,6 @@ int main(int argc, char **argv)
 	printf("Will run %ld %d bit RSA tests\n", testcount, bits);
 	setvbuf(stdout, NULL, _IONBF, 0);
 
-	init_rng();
 	while (testcount--) {
 		if (rsa_cipher_test(bits)) {
 			puts("FAILED!");
@@ -29,6 +27,5 @@ int main(int argc, char **argv)
 		}
 	}
 
-	free_rng();
 	return 0;
 }
