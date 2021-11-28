@@ -34,9 +34,6 @@
  * The code is portable with the exception of multiplication: in order to run on
  * a new CPU type, you need to implement inline assembly for expanding
  * multiplication.
- *
- * GCC is not very good at generating optimal code for the portable versions of
- * add and subtract, but for simplicity I didn't hand-roll assembly for those.
  */
 
 struct bfi {
@@ -49,17 +46,13 @@ struct bfi {
 
 static unsigned long bfi_safe(struct bfi *b, int index)
 {
+	fatal_on(index < 0, "Negative BFI index!\n");
+
 	if (index < b->len)
 		return b->n[index];
 
 	return 0;
 }
-
-/*
- * Throughout the library, we just explicitly fatal on -ENOMEM because it's
- * easy. Anybody using this in a serious enough use case for that to be a
- * problem needs to rethink their life.
- */
 
 static struct bfi *__bfi_alloc(int len)
 {
@@ -67,16 +60,11 @@ static struct bfi *__bfi_alloc(int len)
 
 	fatal_on(!len, "Attempt to allocate zero-length BFI\n");
 
-	/*
-	 * FIXME: This is necessary because modulo/divide rely on expanding the
-	 * divisor to match the width of the dividend. Need to fix it to support
-	 * shifted subtraction and this will go away.
-	 */
-	ret = calloc(1, sizeof(*ret) + 128 * sizeof(unsigned long));
+	ret = calloc(1, sizeof(*ret) + (len + 1) * sizeof(unsigned long));
 	fatal_on(!ret, "ENOMEM allocating BFI\n");
 
 	ret->sign = 0;
-	ret->alloclen = 128;
+	ret->alloclen = len + 1;
 	ret->len = 1;
 
 	return ret;
@@ -105,11 +93,17 @@ static void shrink_bfi(struct bfi *b)
 
 static void __bfi_dup(struct bfi *dst, struct bfi *src)
 {
-	fatal_on(dst->alloclen < src->alloclen, "__bfi_dup() can't allocate\n");
+	unsigned long tmp;
 
+	shrink_bfi(src);
+	fatal_on(dst->alloclen < src->len, "__bfi_dup() can't allocate\n");
+
+	tmp = dst->alloclen;
 	memcpy(dst, src, sizeof(*src) + src->len * sizeof(unsigned long));
+	dst->alloclen = tmp;
+
 	memset(&dst->n[dst->len], 0,
-			(dst->alloclen - dst->len) * sizeof(unsigned long));
+	       (dst->alloclen - dst->len) * sizeof(unsigned long));
 }
 
 struct bfi *bfi_copy(struct bfi *b)
@@ -206,61 +200,6 @@ void bfi_dec(struct bfi *b)
 	int i = 0;
 
 	while (!(b->n[i++]--));
-}
-
-void bfi_shr(struct bfi *b)
-{
-	unsigned long prv, nxt;
-	int i;
-
-	prv = 0;
-	for (i = b->len - 1; i >= 0; i--) {
-		nxt = b->n[i] & 1;
-		b->n[i] >>= 1;
-		b->n[i] |= prv;
-
-		prv = nxt << (LONG_BIT - 1);
-	}
-}
-
-void bfi_multiple_shl(struct bfi *b, int n)
-{
-	int i, words;
-	unsigned long mask, prv, nxt, adj;
-
-	words = n / LONG_BIT;
-	__bfi_extend(b, b->len + words);
-
-	if (words) {
-		for (i = b->len - 1; i - words >= 0; i--)
-			b->n[i] = b->n[i - words];
-
-		for (i = words - 1; i >= 0; i--)
-			b->n[i] = 0;
-
-		n %= LONG_BIT;
-	}
-
-	if (!n)
-		return;
-
-	__bfi_extend(b, b->len + words + 1);
-
-	/*
-	 * Mask for the top N bits, and adjustment to shift the top N bits to
-	 * the low N bits for the next iteration.
-	 */
-	mask = ~((1UL << (LONG_BIT - n)) - 1UL);
-	adj = LONG_BIT - n;
-
-	prv = 0;
-	for (i = 0; i < b->len; i++) {
-		nxt = b->n[i] & mask;
-		b->n[i] <<= n;
-		b->n[i] |= prv;
-
-		prv = nxt >> adj;
-	}
 }
 
 int bfi_is_zero(struct bfi *b)
@@ -370,6 +309,64 @@ static void __bfi_sub(struct bfi *a, struct bfi *b)
 
 	for (i = 0; i < b->len; i++)
 		subtract_chained_borrow(&a->n[i], b->n[i]);
+
+	if (bfi_is_zero(a))
+		a->sign = 0;
+}
+
+static int __bfi_shl_cmp(struct bfi *a, struct bfi *b, int b_shift)
+{
+	unsigned long adj, mask;
+	int i, n, w;
+
+	w = b_shift / LONG_BIT;
+	n = b_shift % LONG_BIT;
+	adj = (LONG_BIT - n) % LONG_BIT;
+	mask = ~((1UL << adj) - 1);
+
+	for (i = max(a->len, b->len + w + !!n) - 1; i >= 0; i--) {
+		unsigned long a_val = bfi_safe(a, i);
+		unsigned long b_val;
+
+		b_val = bfi_safe(b, i - w) << n;
+		if (i - w != 0 && adj)
+			b_val |= (bfi_safe(b, i - w - 1) & mask) >> adj;
+
+		if (a_val != b_val)
+			return ulong_cmp(a_val, b_val);
+	}
+
+	return 0;
+}
+
+static void __bfi_shl_sub(struct bfi *a, struct bfi *b, int b_shift)
+{
+	unsigned long mask, nxt, prv, adj, tmp;
+	int i, n, w;
+
+	w = b_shift / LONG_BIT;
+	n = b_shift % LONG_BIT;
+	adj = (LONG_BIT - n) % LONG_BIT;
+	mask = ~((1UL << adj) - 1);
+
+	shrink_bfi(b);
+	fatal_on(b->len + w > a->len, "Bad shftsub: %d > %d << %d\n",
+		 b->len, a->len, b_shift);
+
+	prv = 0;
+	for (i = 0; i < b->len; i++) {
+		nxt = b->n[i] & mask;
+		tmp = b->n[i] << n;
+		tmp |= prv;
+
+		subtract_chained_borrow(&a->n[i + w], tmp);
+
+		if (adj)
+			prv = nxt >> adj;
+	}
+
+	if (prv)
+		subtract_chained_borrow(&a->n[i + w], prv);
 
 	if (bfi_is_zero(a))
 		a->sign = 0;
@@ -491,17 +488,15 @@ void bfi_modulo(struct bfi *b, struct bfi *div)
 	if (bits < 0)
 		return;
 
-	bfi_multiple_shl(div, bits);
 	while (1) {
-		if (bfi_cmp(b, div) >= 0) {
-			__bfi_sub(b, div);
+		if (__bfi_shl_cmp(b, div, bits) >= 0) {
+			__bfi_shl_sub(b, div, bits);
 			continue;
 		}
 
 		if (!bits)
 			break;
 
-		bfi_shr(div);
 		bits--;
 	}
 
@@ -525,10 +520,9 @@ struct bfi *bfi_divide(struct bfi *a, struct bfi *b, struct bfi **rem)
 	dividend = bfi_copy(a);
 	divisor = bfi_copy(b);
 
-	bfi_multiple_shl(divisor, bits);
 	while (1) {
-		if (bfi_cmp(dividend, divisor) >= 0) {
-			__bfi_sub(dividend, divisor);
+		if (__bfi_shl_cmp(dividend, divisor, bits) >= 0) {
+			__bfi_shl_sub(dividend, divisor, bits);
 			bfi_add_pow2(quotient, bits);
 			continue;
 		}
@@ -536,7 +530,6 @@ struct bfi *bfi_divide(struct bfi *a, struct bfi *b, struct bfi **rem)
 		if (!bits)
 			break;
 
-		bfi_shr(divisor);
 		bits--;
 	}
 
