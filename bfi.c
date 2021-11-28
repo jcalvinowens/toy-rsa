@@ -594,3 +594,54 @@ struct bfi *bfi_mod_exp(struct bfi *base, struct bfi *exp, struct bfi *mod)
 
 	return res;
 }
+
+/*
+ * Returns the modular multiplicative inverse of e mod tot
+ *
+ * https://en.wikipedia.org/wiki/Modular_multiplicative_inverse
+ * https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+ */
+struct bfi *mod_inv(struct bfi *e, struct bfi *tot)
+{
+	struct bfi *a = bfi_copy(e);
+	struct bfi *b = bfi_copy(tot);
+	struct bfi *m = bfi_alloc(bfi_len(tot));
+	struct bfi *x_last = bfi_alloc(bfi_len(tot));
+	struct bfi *x = bfi_alloc(bfi_len(tot));
+	struct bfi *q = NULL;
+	struct bfi *r = NULL;
+	struct bfi *tmp = NULL;
+
+	bfi_extend(m, bfi_len(tot));
+	bfi_extend(x_last, bfi_len(tot));
+	bfi_extend(x, bfi_len(tot));
+
+	bfi_raw(x)[0] = 1;
+	while (!bfi_is_zero(a)) {
+		q = bfi_divide(b, a, &r);
+
+		xchg(m, x_last);
+		tmp = bfi_multiply(q, x);
+		bfi_sub(m, tmp);
+		bfi_free(tmp);
+
+		xchg(x_last, x);
+		xchg(x, m);
+		xchg(b, a);
+		xchg(a, r);
+
+		bfi_free(r);
+		bfi_free(q);
+	}
+
+	if (bfi_sign(x_last))
+		bfi_add(x_last, tot);
+
+	bfi_modulo(x_last, tot);
+
+	bfi_free(a);
+	bfi_free(b);
+	bfi_free(m);
+	bfi_free(x);
+	return x_last;
+}

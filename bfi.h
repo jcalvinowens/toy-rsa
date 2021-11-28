@@ -36,3 +36,4 @@ struct bfi *bfi_divide(struct bfi *a, struct bfi *b, struct bfi **rem);
 
 struct bfi *bfi_gcd(struct bfi *a, struct bfi *b);
 struct bfi *bfi_mod_exp(struct bfi *base, struct bfi *exp, struct bfi *mod);
+struct bfi *mod_inv(struct bfi *e, struct bfi *tot);

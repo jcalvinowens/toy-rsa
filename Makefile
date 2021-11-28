@@ -5,7 +5,7 @@ CFLAGS = -O3 -fno-strict-aliasing -D_GNU_SOURCE -Wall -Wextra \
 
 debug: CFLAGS += -Og -g -fsanitize=address -fsanitize=undefined
 
-obj = bfi.o rng.o rsa.o main.o
+obj = bfi.o main.o
 binary = toy-rsa
 
 all: $(obj) $(binary)
