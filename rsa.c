@@ -160,11 +160,11 @@ void rsa_generate_keypair(struct rsa_key **pub, struct rsa_key **priv, int bits)
 	struct bfi *p, *q, *d, *mod, *tot;
 	struct bfi *e = bfi_alloc(64);
 
-	printf("Generating %d bit RSA key...\n", bits);
-
 	p = find_prime(bits >> 1);
 	q = find_prime(bits >> 1);
 
+
+	printf("\nGENERATED %d BIT RSA KEY:\n\n", bits);
 	printf("p: ");
 	bfi_print(p);
 	printf("q: ");
@@ -212,7 +212,7 @@ int rsa_cipher_test(int bits)
 
 	rsa_generate_keypair(&pub, &priv, bits);
 
-	printf("Testing %d bit RSA key:\n", bits);
+	printf("\nTESTING %d BIT RSA KEY:\n\n", bits);
 
 	secret = bfi_alloc(128);
 	#if LONG_BIT == 64
@@ -249,5 +249,6 @@ int rsa_cipher_test(int bits)
 	free_key(pub);
 	free_key(priv);
 
+	puts("");
 	return ret;
 }

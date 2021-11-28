@@ -137,19 +137,23 @@ void bfi_extend(struct bfi *b, int new_bitlen)
 
 void bfi_print(struct bfi *b)
 {
-	int i;
+	int i, j;
 
 	printf("[%d] ", b->sign);
-	for (i = b->len - 1; i >= 0; i--) {
+	for (j = 1, i = b->len - 1; i >= 0; j++, i--) {
 		#if LONG_BIT == 64
 		printf("%016lx", b->n[i]);
+		if (j % 5 == 0)
+			printf("\n%s", "       ");
 		#elif LONG_BIT == 32
 		printf("%08lx", b->n[i]);
+		if (j % 10 == 0)
+			printf("\n%s", "       ");
 		#else
 		#error "WAT"
 		#endif
 	}
-	putchar('\n');
+	puts("\n");
 }
 
 int bfi_len(struct bfi *b)
