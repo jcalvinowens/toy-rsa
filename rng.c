@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <sys/random.h>
 
-#include "include/common.h"
-#include "include/rng.h"
+#include "common.h"
+#include "rng.h"
 
 void rng_fill_mem(void *mem, int len)
 {

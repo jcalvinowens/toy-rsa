@@ -2,9 +2,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "include/common.h"
-#include "include/rsa.h"
-#include "include/rng.h"
+#include "common.h"
+#include "rsa.h"
+#include "rng.h"
 
 int main(int argc, char **argv)
 {

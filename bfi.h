@@ -22,7 +22,6 @@ int bfi_cmp(struct bfi *a, struct bfi *b);
 void bfi_inc(struct bfi *b);
 void bfi_dec(struct bfi *b);
 void bfi_shr(struct bfi *b);
-void bfi_shl(struct bfi *b);
 void bfi_multiple_shl(struct bfi *b, int n);
 
 int bfi_is_zero(struct bfi *b);

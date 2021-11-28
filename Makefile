@@ -1,11 +1,9 @@
 CC = gcc
-CFLAGS = -O3 -c -fno-strict-aliasing -D_GNU_SOURCE -Wall -Wextra \
-	-Werror=implicit-function-declaration -Wdeclaration-after-statement \
-	-Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations \
-	-Winline -Wno-unused-function -Wno-unused-parameter
+CFLAGS = -O2 -fno-strict-aliasing -D_GNU_SOURCE -Wall -Wextra \
+	-Werror=implicit -Wdeclaration-after-statement -Wstrict-prototypes \
+	-Wmissing-prototypes -Wmissing-declarations
 
-debug: CFLAGS += -Og -gdwarf-4 -fno-omit-frame-pointer -fstack-protector-all \
-	-fsanitize=address -fsanitize=undefined
+debug: CFLAGS += -Og -g -fsanitize=address -fsanitize=undefined
 debug: LDFLAGS := $(LDFLAGS) -lasan -lubsan
 
 obj = bfi.o rng.o rsa.o main.o
@@ -15,10 +13,10 @@ all: $(obj) $(binary)
 debug: all
 
 $(binary): $(obj)
-	$(CC) $(LDFLAGS) $(obj) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
-	$(CC) $< $(CFLAGS) $(INCLUDES) -c -o $@
+	$(CC) $< $(CFLAGS) -c -o $@
 
 clean:
 	rm -f *.o toy-rsa

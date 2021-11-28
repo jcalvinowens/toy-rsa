@@ -18,8 +18,8 @@
 #include <limits.h>
 #include <string.h>
 
-#include "include/common.h"
-#include "include/bfi.h"
+#include "common.h"
+#include "bfi.h"
 
 /*
  * BFIs ("Big Fucking Integers") are stored as arrays of full-width integers of
@@ -206,11 +206,6 @@ void bfi_dec(struct bfi *b)
 	int i = 0;
 
 	while (!(b->n[i++]--));
-}
-
-void bfi_shl(struct bfi *b)
-{
-	fatal("Unimplemented\n");
 }
 
 void bfi_shr(struct bfi *b)
