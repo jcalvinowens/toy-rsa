@@ -67,15 +67,21 @@ static int rsa_bfi_is_prime(struct bfi *n)
 
 	bfi_dec(nminusone);
 	do {
-		putchar('+');
-
 		bfi_extend(rnd, bfi_len(n));
 		rng_fill_mem(bfi_raw(rnd), bfi_len(rnd) / CHAR_BIT);
 		res = bfi_mod_exp(rnd, nminusone, n);
 
 		ret = !!bfi_is_one(res);
 		bfi_free(res);
-	} while(i-- && ret);
+
+		if (ret == 0) {
+			putchar(i == 10 ? '.' : '!');
+			break;
+		}
+
+		putchar('+');
+
+	} while(i--);
 
 	bfi_free(rnd);
 	bfi_free(nminusone);
@@ -91,8 +97,6 @@ static struct bfi *rsa_find_prime(unsigned int bits)
 
 	printf("Searching for %u bit prime: ", bits);
 	while (1) {
-		putchar('.');
-
 		rng_fill_mem(bfi_raw(prime), bits / CHAR_BIT);
 		bfi_extend(prime, bits);
 
@@ -116,7 +120,7 @@ static struct bfi *rsa_find_prime(unsigned int bits)
 static void rsa_generate_keypair(struct rsa_key **pub, struct rsa_key **priv, int bits)
 {
 	struct bfi *p, *q, *d, *mod, *tot;
-	struct bfi *e = bfi_alloc(64);
+	struct bfi *e = bfi_alloc(17);
 
 	p = rsa_find_prime(bits >> 1);
 	q = rsa_find_prime(bits >> 1);
