@@ -2,9 +2,6 @@
 
 #include <limits.h>
 
-#define BFI_BITSHIFT 6
-#define BFI_BITMASK ((1UL << BFI_BITSHIFT) - 1)
-
 struct bfi;
 
 struct bfi *bfi_alloc(int bitlen);
