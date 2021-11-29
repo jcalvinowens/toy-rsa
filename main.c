@@ -230,7 +230,7 @@ static void parse_args(int argc, char **argv)
 			return;
 		case 'b':
 			bits = atoi(optarg);
-			printf("Will make %d bit keys\n", count);
+			printf("Will make %d bit keys\n", bits);
 			break;
 		case 'c':
 			count = atoi(optarg);
