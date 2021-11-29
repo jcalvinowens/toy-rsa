@@ -144,11 +144,11 @@ void bfi_print(struct bfi *b)
 	for (j = 1, i = b->len - 1; i >= 0; j++, i--) {
 		#if LONG_BIT == 64
 		printf("%016lx", b->n[i]);
-		if (j % 5 == 0)
+		if (j % 4 == 0)
 			printf("\n%s", "       ");
 		#elif LONG_BIT == 32
 		printf("%08lx", b->n[i]);
-		if (j % 10 == 0)
+		if (j % 8 == 0)
 			printf("\n%s", "       ");
 		#else
 		#error "WAT"

@@ -215,7 +215,7 @@ static int rsa_cipher_test(int bits)
 }
 
 static int count = 1;
-static int bits = 1024;
+static int bits = 512;
 
 static void parse_args(int argc, char **argv)
 {

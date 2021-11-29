@@ -5,46 +5,35 @@ toy-rsa: A toy implementation of RSA, written from scratch in 2014 and
 HOW TO USE
 ----------
 
-  {0}[calvin ~/git/toy-rsa] make -j -s
-  {0}[calvin ~/git/toy-rsa] ./toy-rsa --help
-  Usage: ./toy-rsa [-b bits] [-c count]
-  {0}[calvin ~/git/toy-rsa] ./toy-rsa
-  Searching for 512 bit prime: ..+.+.+...<snip>..+++++++++++ done!
-  Searching for 512 bit prime: ..+.+.+.+.+.+.+.++.<snip>.+.++.+++++++++++ done!
+{0}[calvin ~/git/toy-rsa] make -j -s
+{0}[calvin ~/git/toy-rsa] ./toy-rsa --help
+Usage: ./toy-rsa [-b bits] [-c count]
+{0}[calvin ~/git/toy-rsa] ./toy-rsa
+Searching for 256 bit prime: .........................+++++++++++ done!
+Searching for 256 bit prime: .................................+++++++++++ done!
 
-  GENERATED 1024 BIT RSA KEY:
+GENERATED 512 BIT RSA KEY:
 
-  p: [0] c74a8b5b99328b4d90ec2e56942d14dc69fdf276ed7acd8e6ddbdb427cf5635a4f3898882d6e1746
-         90dd11b91e4cc62e1bdd9fe2217dc0a4800746f73d3b38c1
+p: [0] a56d5e695e5a13c21ff3e9f793d908b3df822ebfd2a85fe3d91ccb58eb4ab297
 
-  q: [0] fe8fe29c44540463df498898d18e8018679ecfa6c8c5d95d1d5e3e7276602348b0642ca7aba51196
-         9af1742827785a30bc7000329b51fb200f712e84107dd775
+q: [0] a07f3deab8c42e6941a004bc8e82c49be63be9cb17afbde5c5bf346bf31c84e5
 
-  m: [0] c62bf9522fcfb767b879d9810be173e3d4970ae0f8eda4fb2f23324d6f365203b9c1b912e4cfd749
-         78546d2f5411226d1cbd403074de53ec326e4e3bfe186376bc6bedd1a9ef1f924627117ed00dc8df
-         181f8d6909da38c4c87e04e6597fbed1ce2342ca39e07976076c9c4ef3cfe5856a709fd9eded01c5
-         4d669e667ef80735
+m: [0] 67b694466e1ae46a86096d03fcb69909cf4ed5c35df0e7b9af79a1869f079a4b
+       b94286c9fa9f9a78141fc3b233b50bf53dcf400c08b4a921aad5b4aadb6b9d13
 
-  t: [0] c62bf9522fcfb767b879d9810be173e3d4970ae0f8eda4fb2f23324d6f365203b9c1b912e4cfd749
-         78546d2f5411226d1cbd403074de53ec326e4e3bfe186374f6917fd9cc688fe0d5f15a8f6a5233ea
-         4682cb4b539991d93d43eb31662a382ece867d9a60cd5098db9e166dae0ac5269222ffc5311d4600
-         bdee28eb313ef700
+t: [0] 67b694466e1ae46a86096d03fcb69909cf4ed5c35df0e7b9af79a1869f079a4a
+       7355ea75e381584cb28bd4fe11593ea5781127811e5c8b580bf9b4e5fd046598
 
-  e: [0] 0000000000010001
+e: [0] 0000000000010001
 
-  d: [0] 282ef88252d192c6046128da82f73751a664ee3eca1b1e0e14f3d51a6087aa3fb925f00a45bd6351
-         31862511a8c144b2cd560eb304afa462cba3145813e10c21c671a074207fbf54feeccec92fecf53b
-         f70a4480c4b5ea1e1bcf2edcb873ad2ac893fada17f0e9fbe4e47c75c709c60a592da1a171a116f5
-         c58d8a5c8e82cf01
+d: [1] 3690a892257ba0912ad3eab71e4e335625eba42b9551199967e8e6429d88b274
+       5919eab0fb7121b3b87c3923329d71883d1349657543db4c0780e8dbd7b26881
 
+TESTING 512 BIT RSA KEY:
 
-  TESTING 1024 BIT RSA KEY:
+S: [0] beefbeefbeefbeef
 
-  S: [0] beefbeefbeefbeef
+C: [0] 2d7369b521e1ec032085141e4059a9cd8eba2a91c5599fadbc41f67ad4179b3e
+       8069bddb8f68655fef7b49d488707696b09d508172cdf568a12fe7fa8407e884
 
-  C: [0] 2dd3ea441606ad2cd4cf9ef9c9636ce649c25edb2880694aee1bdcc165f91d543146dbe76a5a1e73
-         0076b537b6d1184e8924c032a18e0ce3c6f6eb7065faac278ba470d39834d13c0b9f9273068d9c62
-         05fa27a31b0efa5b91376ffd2832752b9fb18dce715d1828c6bd5ee9c697d6544aac1f0a26d30c2e
-         5330ada7c7d5d204
-
-  D: [0] beefbeefbeefbeef
+D: [0] beefbeefbeefbeef
