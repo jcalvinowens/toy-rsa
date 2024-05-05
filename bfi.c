@@ -442,9 +442,7 @@ static inline struct dword multiply(unsigned long a, unsigned long b)
 	struct dword r;
 
 	#if defined(__x86_64__)
-	asm ("mulq %0" : "=d" (r.hi), "=a" (r.lo) : "a" (a), "0" (b) : "cc");
-	#elif defined(__i386__)
-	asm ("mull %0" : "=a" (r.hi), "=d" (r.lo) : "a" (a), "0" (b) : "cc");
+	asm ("mulq %2" : "=d" (r.hi), "=a" (r.lo) : "%r" (a), "a" (b) : "cc");
 	#elif defined(__arm__)
 	asm ("umull %0,%1,%2,%3" : "=r" (r.lo), "=r" (r.hi) : "r" (a), "r" (b));
 	#else
