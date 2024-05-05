@@ -430,8 +430,8 @@ static void bfi_add_pow2(struct bfi *b, int pow2)
 }
 
 struct dword {
-	unsigned long hi;
 	unsigned long lo;
+	unsigned long hi;
 };
 
 /*
